@@ -7,7 +7,7 @@ interface FloatingLabelInputProps extends React.InputHTMLAttributes<HTMLInputEle
   label: string;
 }
 
-export const FloatingLabelInput = ({ label, className, ...props }: FloatingLabelInputProps) => {
+export const FloatingLabelInput = ({ label, className, value, onChange, ...props }: FloatingLabelInputProps) => {
   const [isFocused, setIsFocused] = useState(false);
   const [hasValue, setHasValue] = useState(false);
 
@@ -15,6 +15,11 @@ export const FloatingLabelInput = ({ label, className, ...props }: FloatingLabel
     <div className="relative">
       <Input
         {...props}
+        value={value}
+        onChange={(e) => {
+          setHasValue(e.target.value.length > 0);
+          onChange?.(e);
+        }}
         className={cn(
           "h-12 px-4 pt-4 pb-2 w-full text-sm rounded-xl bg-gray-900/50 border-gray-800 text-white placeholder:text-transparent focus:border-purple-500 focus:ring-1 focus:ring-purple-500",
           className
@@ -24,7 +29,6 @@ export const FloatingLabelInput = ({ label, className, ...props }: FloatingLabel
           setIsFocused(false);
           setHasValue(e.target.value.length > 0);
         }}
-        onChange={(e) => setHasValue(e.target.value.length > 0)}
       />
       <label
         className={cn(
