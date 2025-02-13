@@ -95,20 +95,22 @@ export default function Index() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900/20 to-gray-900 text-white">
+    <div className="min-h-screen bg-black text-white">
       <div className="container mx-auto px-4 py-16 max-w-md">
-        <div className="space-y-8 animate-fade-in">
+        <div className="space-y-8">
           {/* Hero Section */}
           <div className="text-center space-y-4">
-            <h1 className="text-4xl md:text-5xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-600 animate-pulse">
+            <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-[#5ee4ff] animate-pulse">
               innercircle
             </h1>
-            <TypewriterAnimation />
+            <div className="text-xl text-gray-400">
+              event sold out?
+            </div>
           </div>
 
           {!isSubmitted ? (
             /* Signup Form */
-            <form onSubmit={handleSubmit} className="space-y-4 animate-fade-in">
+            <form onSubmit={handleSubmit} className="space-y-6">
               <FloatingLabelInput
                 label="Full Name"
                 value={formData.fullName}
@@ -135,7 +137,7 @@ export default function Index() {
               />
               <Button
                 type="submit"
-                className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white py-6 rounded-xl transition-all duration-300 transform hover:scale-105"
+                className="w-full h-14 text-base font-medium bg-gradient-to-r from-[#5ee4ff] to-[#7b5cfa] hover:opacity-90 text-white rounded-xl transition-all duration-300"
               >
                 Request Privileged Access
               </Button>

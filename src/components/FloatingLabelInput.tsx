@@ -21,7 +21,7 @@ export const FloatingLabelInput = ({ label, className, value, onChange, ...props
           onChange?.(e);
         }}
         className={cn(
-          "h-12 px-4 pt-4 pb-2 w-full text-sm rounded-xl bg-gray-900/50 border-gray-800 text-white placeholder:text-transparent focus:border-purple-500 focus:ring-1 focus:ring-purple-500",
+          "h-14 px-4 w-full text-base rounded-2xl bg-[#13151a] border-none text-white placeholder:text-transparent focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0",
           className
         )}
         onFocus={() => setIsFocused(true)}
@@ -33,7 +33,7 @@ export const FloatingLabelInput = ({ label, className, value, onChange, ...props
       <label
         className={cn(
           "absolute left-4 transition-all duration-200 pointer-events-none text-gray-400",
-          (isFocused || hasValue) ? "text-xs top-1" : "text-sm top-3"
+          (isFocused || hasValue || value) ? "text-xs top-2" : "text-base top-4"
         )}
       >
         {label}
