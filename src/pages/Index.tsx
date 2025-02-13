@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { supabase } from "@/integrations/supabase/client";
@@ -100,12 +99,10 @@ export default function Index() {
         <div className="space-y-8">
           {/* Hero Section */}
           <div className="text-center space-y-4">
-            <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-[#5ee4ff] animate-pulse">
+            <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-[#5ee4ff]">
               innercircle
             </h1>
-            <div className="text-xl text-gray-400">
-              event sold out?
-            </div>
+            <TypewriterAnimation />
           </div>
 
           {!isSubmitted ? (
