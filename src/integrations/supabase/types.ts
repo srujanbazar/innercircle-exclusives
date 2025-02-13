@@ -9,13 +9,56 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      waitlist: {
+        Row: {
+          city: string
+          created_at: string | null
+          email: string
+          full_name: string
+          id: string
+          referral_code: string
+          referral_count: number | null
+          referred_by: string | null
+        }
+        Insert: {
+          city: string
+          created_at?: string | null
+          email: string
+          full_name: string
+          id?: string
+          referral_code: string
+          referral_count?: number | null
+          referred_by?: string | null
+        }
+        Update: {
+          city?: string
+          created_at?: string | null
+          email?: string
+          full_name?: string
+          id?: string
+          referral_code?: string
+          referral_count?: number | null
+          referred_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "waitlist_referred_by_fkey"
+            columns: ["referred_by"]
+            isOneToOne: false
+            referencedRelation: "waitlist"
+            referencedColumns: ["referral_code"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      generate_referral_code: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
     }
     Enums: {
       [_ in never]: never
