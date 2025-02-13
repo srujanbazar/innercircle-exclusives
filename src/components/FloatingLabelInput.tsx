@@ -33,7 +33,7 @@ export const FloatingLabelInput = ({ label, className, value, onChange, ...props
       <label
         className={cn(
           "absolute left-4 transition-all duration-200 pointer-events-none text-gray-400",
-          (isFocused || hasValue || value) ? "text-xs top-2" : "text-base top-4"
+          (isFocused || hasValue || value) ? "opacity-0" : "text-base top-4"
         )}
       >
         {label}
