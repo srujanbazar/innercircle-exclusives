@@ -24,72 +24,56 @@ export default function Index() {
   const [referrerName, setReferrerName] = useState('');
   const shareMessage = `i just secured my spot in innercircle! want in? sign up now and get ahead of the line: innercircle.events?ref=${personalReferralCode}\n\n_innercircle: the ultimate insider platform for event lovers._`;
 
-  useEffect(() => {
-    fetchTotalSignups();
-    const channel = supabase
-      .channel('waitlist_count')
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'waitlist' },
-        () => {
-          fetchTotalSignups();
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, []);
-
   const fetchTotalSignups = async () => {
-    try {
-      const { count } = await supabase
-        .from('waitlist')
-        .select('*', { count: 'exact', head: true });
-      
-      setTotalSignups(count || 0);
-    } catch (error) {
-      console.error('Error fetching total signups:', error);
+    const { data, error } = await supabase
+      .from('waitlist')
+      .select('id');
+    
+    if (!error && data) {
+      setTotalSignups(data.length);
     }
   };
+
+  useEffect(() => {
+    fetchTotalSignups();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      // Validate referral code if provided
+      // New simplified referral code validation
       if (formData.referralCode) {
-        const { data: referrer, error: referrerError } = await supabase
+        const { data, error } = await supabase
           .from('waitlist')
           .select('full_name')
-          .eq('referral_code', formData.referralCode)
-          .limit(1)
+          .eq('referral_code', formData.referralCode.trim())
           .maybeSingle();
-          
-        if (referrerError) {
+
+        console.log('Referral check result:', { data, error });
+
+        if (error) {
+          console.error('Referral validation error:', error);
           toast({
-            description: "oops! something went wrong while checking the referral code. please try again!",
+            description: "oops! something went wrong. please try again!",
             variant: "destructive",
           });
           return;
         }
 
-        if (!referrer) {
+        if (!data) {
           toast({
-            description: "hmm... that referral code doesn't seem right. double-check and try again!",
+            description: "invalid referral code. please check and try again!",
             variant: "destructive",
           });
           return;
         }
 
-        setReferrerName(referrer.full_name);
+        setReferrerName(data.full_name);
       }
 
-      const { data, error } = await supabase.rpc('generate_referral_code');
-      if (error) throw error;
+      const { data: newReferralCode, error: genError } = await supabase.rpc('generate_referral_code');
+      if (genError) throw genError;
 
-      const referralCode = data;
-      
       const { error: insertError } = await supabase
         .from('waitlist')
         .insert([
@@ -97,37 +81,26 @@ export default function Index() {
             full_name: formData.fullName.toLowerCase(),
             email: formData.email.toLowerCase(),
             city: formData.city.toLowerCase(),
-            referral_code: referralCode,
-            referred_by: formData.referralCode || null
+            referral_code: newReferralCode,
+            referred_by: formData.referralCode ? formData.referralCode.trim() : null
           }
         ]);
 
-      if (insertError) {
-        toast({
-          description: "something went wrong while signing you up. please try again!",
-          variant: "destructive",
-        });
-        return;
-      }
+      if (insertError) throw insertError;
 
-      setPersonalReferralCode(referralCode);
+      setPersonalReferralCode(newReferralCode);
       setIsSubmitted(true);
+      fetchTotalSignups(); // Refresh the count after successful submission
     } catch (error: any) {
+      console.error('Submission error:', error);
       toast({
-        description: "oops! something unexpected happened. please try again!",
+        description: "something went wrong. please try again!",
         variant: "destructive",
       });
     }
   };
 
   const copyReferralCode = () => {
-    navigator.clipboard.writeText(shareMessage);
-    toast({
-      description: "share message copied to clipboard!",
-    });
-  };
-
-  const copyShareMessage = () => {
     navigator.clipboard.writeText(shareMessage);
     toast({
       description: "share message copied to clipboard!",
@@ -211,19 +184,6 @@ export default function Index() {
                     className="bg-[#13151a] hover:bg-gray-800 border-gray-800"
                   >
                     <Copy className="h-4 w-4" />
-                  </Button>
-                </div>
-                <div className="p-4 bg-[#13151a] rounded-xl border border-gray-800 mb-6">
-                  <p className="text-sm text-gray-400 mb-2 font-satoshi">share message</p>
-                  <p className="text-sm font-mono font-satoshi mb-2">{shareMessage}</p>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={copyShareMessage}
-                    className="w-full bg-[#13151a] hover:bg-gray-800 border-gray-800 font-satoshi"
-                  >
-                    <Copy className="h-4 w-4 mr-2" />
-                    copy message
                   </Button>
                 </div>
                 <div className="space-y-3">
