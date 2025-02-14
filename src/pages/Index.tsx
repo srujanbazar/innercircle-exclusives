@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { supabase } from "@/integrations/supabase/client";
@@ -21,9 +22,10 @@ export default function Index() {
   const [personalReferralCode, setPersonalReferralCode] = useState('');
   const [totalSignups, setTotalSignups] = useState(0);
   const [referrerName, setReferrerName] = useState('');
+  const shareMessage = `i just secured my spot in innercircle! want in? sign up now and get ahead of the line: innercircle.events?ref=${personalReferralCode}\n\n_innercircle: the ultimate insider platform for event lovers._`;
 
-  // Subscribe to realtime updates
   useEffect(() => {
+    fetchTotalSignups();
     const channel = supabase
       .channel('waitlist_count')
       .on(
@@ -35,18 +37,22 @@ export default function Index() {
       )
       .subscribe();
 
-    fetchTotalSignups();
-
     return () => {
       supabase.removeChannel(channel);
     };
   }, []);
 
   const fetchTotalSignups = async () => {
-    const { count } = await supabase
-      .from('waitlist')
-      .select('*', { count: 'exact' });
-    setTotalSignups(count || 0);
+    try {
+      const { count, error } = await supabase
+        .from('waitlist')
+        .select('*', { count: 'exact', head: true });
+      
+      if (error) throw error;
+      setTotalSignups(count || 0);
+    } catch (error) {
+      console.error('Error fetching total signups:', error);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -120,6 +126,13 @@ export default function Index() {
     });
   };
 
+  const copyShareMessage = () => {
+    navigator.clipboard.writeText(shareMessage);
+    toast({
+      description: "share message copied to clipboard!",
+    });
+  };
+
   const resetForm = () => {
     setIsSubmitted(false);
     setFormData({
@@ -135,7 +148,6 @@ export default function Index() {
     <div className="min-h-screen bg-black text-white font-satoshi flex items-center justify-center">
       <div className="container mx-auto px-4 py-8 max-w-md">
         <div className="space-y-8">
-          {/* Hero Section */}
           <div className="text-center space-y-4">
             <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-[#5ee4ff]">
               innercircle
@@ -144,7 +156,6 @@ export default function Index() {
           </div>
 
           {!isSubmitted ? (
-            /* Signup Form */
             <form onSubmit={handleSubmit} className="space-y-6">
               <FloatingLabelInput
                 label="full name"
@@ -178,9 +189,8 @@ export default function Index() {
               </Button>
             </form>
           ) : (
-            /* Success State */
             <div className="space-y-6 animate-fade-in">
-              <div className="p-8 bg-gradient-to-br from-[#13151a] to-[#1a1f2c] rounded-2xl border border-gray-800 shadow-xl">
+              <div className="p-8 bg-[#13151a] rounded-2xl border border-gray-800 shadow-xl">
                 <h3 className="text-2xl font-semibold mb-6 text-[#5ee4ff]">
                   {referrerName ? (
                     <>you're in! {referrerName} is glad to have you in innercircle. stay tuned—big things are coming.</>
@@ -191,7 +201,7 @@ export default function Index() {
                 <div className="flex items-center space-x-2 mb-6">
                   <div className="flex-1 p-4 bg-[#13151a] rounded-xl border border-gray-800">
                     <p className="text-sm text-gray-400 mb-1">your referral code</p>
-                    <p className="text-lg font-mono text-[#5ee4ff]">{personalReferralCode}</p>
+                    <p className="text-lg font-mono">{personalReferralCode}</p>
                   </div>
                   <Button
                     variant="outline"
@@ -202,6 +212,19 @@ export default function Index() {
                     <Copy className="h-4 w-4" />
                   </Button>
                 </div>
+                <div className="p-4 bg-[#13151a] rounded-xl border border-gray-800 mb-6">
+                  <p className="text-sm text-gray-400 mb-2">share message</p>
+                  <p className="text-sm font-mono mb-2">{shareMessage}</p>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={copyShareMessage}
+                    className="w-full bg-[#13151a] hover:bg-gray-800 border-gray-800"
+                  >
+                    <Copy className="h-4 w-4 mr-2" />
+                    copy message
+                  </Button>
+                </div>
                 <div className="space-y-3">
                   <SocialShareButton platform="whatsapp" referralCode={personalReferralCode} />
                   <SocialShareButton platform="twitter" referralCode={personalReferralCode} />
@@ -210,7 +233,7 @@ export default function Index() {
               </div>
               <div className="flex justify-between items-center">
                 <div className="text-sm text-gray-400">
-                  {totalSignups.toLocaleString()} people have joined innercircle
+                  innercircle is growing—{totalSignups.toLocaleString()} event lovers are already on the list!
                 </div>
                 <Button
                   variant="ghost"

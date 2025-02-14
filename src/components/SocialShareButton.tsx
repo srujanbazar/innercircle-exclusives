@@ -1,7 +1,7 @@
 
 import { Button } from "@/components/ui/button";
-import { Share2, Copy } from "lucide-react";
-import { useToast } from "@/components/ui/use-toast";
+import { Share2 } from "lucide-react";
+import { Twitter, Instagram, WhatsApp } from 'lucide-react';
 
 interface SocialShareButtonProps {
   platform: 'whatsapp' | 'twitter' | 'instagram';
@@ -9,8 +9,7 @@ interface SocialShareButtonProps {
 }
 
 export const SocialShareButton = ({ platform, referralCode }: SocialShareButtonProps) => {
-  const { toast } = useToast();
-  const message = `i just secured my spot in innercircle! want in? sign up now and get ahead of the line: innercircle.com?ref=${referralCode}\n\n_innercircle: the ultimate insider platform for event lovers._`;
+  const message = `i just secured my spot in innercircle! want in? sign up now and get ahead of the line: innercircle.events?ref=${referralCode}\n\n_innercircle: the ultimate insider platform for event lovers._`;
   
   const getShareUrl = () => {
     switch (platform) {
@@ -23,44 +22,35 @@ export const SocialShareButton = ({ platform, referralCode }: SocialShareButtonP
     }
   };
 
+  const getIcon = () => {
+    switch (platform) {
+      case 'whatsapp':
+        return <WhatsApp className="w-4 h-4 mr-2" />;
+      case 'twitter':
+        return <Twitter className="w-4 h-4 mr-2" />;
+      case 'instagram':
+        return <Instagram className="w-4 h-4 mr-2" />;
+    }
+  };
+
   const handleShare = () => {
     const url = getShareUrl();
     if (url) {
       window.open(url, '_blank');
     } else {
       navigator.clipboard.writeText(message);
-      toast({
-        description: "message copied! paste it on instagram to share.",
-      });
     }
   };
 
-  const copyMessage = () => {
-    navigator.clipboard.writeText(message);
-    toast({
-      description: "message copied to clipboard!",
-    });
-  };
-
   return (
-    <div className="flex gap-2">
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={handleShare}
-        className="flex-1 bg-gray-800 hover:bg-gray-700 border-gray-700 font-satoshi"
-      >
-        <Share2 className="w-4 h-4 mr-2" />
-        share on {platform}
-      </Button>
-      <Button
-        variant="outline"
-        size="icon"
-        onClick={copyMessage}
-        className="bg-gray-800 hover:bg-gray-700 border-gray-700"
-      >
-        <Copy className="w-4 h-4" />
-      </Button>
-    </div>
+    <Button
+      variant="outline"
+      size="sm"
+      onClick={handleShare}
+      className="w-full bg-gray-800 hover:bg-gray-700 border-gray-700 font-satoshi"
+    >
+      {getIcon()}
+      share on {platform}
+    </Button>
   );
 };
