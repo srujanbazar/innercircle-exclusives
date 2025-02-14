@@ -1,6 +1,7 @@
 
 import { Button } from "@/components/ui/button";
-import { Share2 } from "lucide-react";
+import { Share2, Copy } from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
 
 interface SocialShareButtonProps {
   platform: 'whatsapp' | 'twitter' | 'instagram';
@@ -8,16 +9,16 @@ interface SocialShareButtonProps {
 }
 
 export const SocialShareButton = ({ platform, referralCode }: SocialShareButtonProps) => {
-  const message = encodeURIComponent(`🚀 I just got early access to innercircle! Sign up now and skip the waitlist: innercircle.com?ref=${referralCode}`);
+  const { toast } = useToast();
+  const message = `i just secured my spot in innercircle! want in? sign up now and get ahead of the line: innercircle.com?ref=${referralCode}\n\n_innercircle: the ultimate insider platform for event lovers._`;
   
   const getShareUrl = () => {
     switch (platform) {
       case 'whatsapp':
-        return `https://wa.me/?text=${message}`;
+        return `https://wa.me/?text=${encodeURIComponent(message)}`;
       case 'twitter':
-        return `https://twitter.com/intent/tweet?text=${message}`;
+        return `https://twitter.com/intent/tweet?text=${encodeURIComponent(message)}`;
       case 'instagram':
-        // Instagram doesn't support direct sharing, so we'll copy to clipboard
         return null;
     }
   };
@@ -28,18 +29,38 @@ export const SocialShareButton = ({ platform, referralCode }: SocialShareButtonP
       window.open(url, '_blank');
     } else {
       navigator.clipboard.writeText(message);
+      toast({
+        description: "message copied! paste it on instagram to share.",
+      });
     }
   };
 
+  const copyMessage = () => {
+    navigator.clipboard.writeText(message);
+    toast({
+      description: "message copied to clipboard!",
+    });
+  };
+
   return (
-    <Button
-      variant="outline"
-      size="sm"
-      onClick={handleShare}
-      className="bg-gray-800 hover:bg-gray-700 border-gray-700"
-    >
-      <Share2 className="w-4 h-4 mr-2" />
-      Share on {platform.charAt(0).toUpperCase() + platform.slice(1)}
-    </Button>
+    <div className="flex gap-2">
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={handleShare}
+        className="flex-1 bg-gray-800 hover:bg-gray-700 border-gray-700 font-satoshi"
+      >
+        <Share2 className="w-4 h-4 mr-2" />
+        share on {platform}
+      </Button>
+      <Button
+        variant="outline"
+        size="icon"
+        onClick={copyMessage}
+        className="bg-gray-800 hover:bg-gray-700 border-gray-700"
+      >
+        <Copy className="w-4 h-4" />
+      </Button>
+    </div>
   );
 };

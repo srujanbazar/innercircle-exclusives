@@ -2,16 +2,16 @@
 import Typewriter from 'typewriter-effect';
 
 const phrases = [
-  'exclusive insights to top events',
+  'the ultimate insider platform for event lovers',
+  'connect with like-minded people',
   'event sold out? here\'s your second chance',
   'can\'t make it anymore? sell your ticket quick',
-  'connect with like-minded people',
-  'innercircle: the home for event lovers'
+  'exclusive insights to top events'
 ];
 
 export const TypewriterAnimation = () => {
   return (
-    <div className="text-xl md:text-2xl text-gray-300 h-20 mt-4">
+    <div className="text-xl md:text-2xl text-gray-300 h-20 mt-4 font-satoshi">
       <Typewriter
         options={{
           strings: phrases,
