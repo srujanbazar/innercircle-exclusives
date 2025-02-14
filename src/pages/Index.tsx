@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { supabase } from "@/integrations/supabase/client";
@@ -55,15 +54,23 @@ export default function Index() {
     try {
       // Validate referral code if provided
       if (formData.referralCode) {
-        const { data: referrer } = await supabase
+        const { data: referrer, error: referrerError } = await supabase
           .from('waitlist')
           .select('full_name')
           .eq('referral_code', formData.referralCode)
-          .single();
+          .maybeSingle();
           
+        if (referrerError) {
+          toast({
+            description: "oops! something went wrong while checking the referral code. please try again!",
+            variant: "destructive",
+          });
+          return;
+        }
+
         if (!referrer) {
           toast({
-            description: "oops! that referral code doesn't exist. double-check and try again!",
+            description: "hmm... that referral code doesn't seem right. double-check and try again!",
             variant: "destructive",
           });
           return;
@@ -90,7 +97,7 @@ export default function Index() {
 
       if (insertError) {
         toast({
-          description: "something went wrong. please try again!",
+          description: "something went wrong while signing you up. please try again!",
           variant: "destructive",
         });
         return;
@@ -100,7 +107,7 @@ export default function Index() {
       setIsSubmitted(true);
     } catch (error: any) {
       toast({
-        description: "oops! something went wrong. please try again!",
+        description: "oops! something unexpected happened. please try again!",
         variant: "destructive",
       });
     }
