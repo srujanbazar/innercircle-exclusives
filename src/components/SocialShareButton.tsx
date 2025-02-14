@@ -1,9 +1,9 @@
 
 import { Button } from "@/components/ui/button";
-import { MessageSquare, Twitter, Instagram } from 'lucide-react';
+import { MessageSquare, Twitter, Copy } from 'lucide-react';
 
 interface SocialShareButtonProps {
-  platform: 'whatsapp' | 'x' | 'instagram';
+  platform: 'whatsapp' | 'x' | 'copy';
   referralCode: string;
 }
 
@@ -16,7 +16,7 @@ export const SocialShareButton = ({ platform, referralCode }: SocialShareButtonP
         return `https://wa.me/?text=${encodeURIComponent(message)}`;
       case 'x':
         return `https://twitter.com/intent/tweet?text=${encodeURIComponent(message)}`;
-      case 'instagram':
+      case 'copy':
         return null;
     }
   };
@@ -27,8 +27,8 @@ export const SocialShareButton = ({ platform, referralCode }: SocialShareButtonP
         return <MessageSquare className="w-4 h-4 mr-2" />;
       case 'x':
         return <Twitter className="w-4 h-4 mr-2" />;
-      case 'instagram':
-        return <Instagram className="w-4 h-4 mr-2" />;
+      case 'copy':
+        return <Copy className="w-4 h-4 mr-2" />;
     }
   };
 
@@ -49,7 +49,7 @@ export const SocialShareButton = ({ platform, referralCode }: SocialShareButtonP
       className="w-full bg-gray-800 hover:bg-gray-700 border-gray-700 font-satoshi"
     >
       {getIcon()}
-      share on {platform === 'x' ? 'x (twitter)' : platform}
+      share on {platform === 'x' ? 'x (twitter)' : platform === 'copy' ? 'share (copy text)' : platform}
     </Button>
   );
 };

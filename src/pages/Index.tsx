@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { supabase } from "@/integrations/supabase/client";
@@ -43,11 +44,10 @@ export default function Index() {
 
   const fetchTotalSignups = async () => {
     try {
-      const { count, error } = await supabase
+      const { count } = await supabase
         .from('waitlist')
         .select('*', { count: 'exact', head: true });
       
-      if (error) throw error;
       setTotalSignups(count || 0);
     } catch (error) {
       console.error('Error fetching total signups:', error);
@@ -63,6 +63,7 @@ export default function Index() {
           .from('waitlist')
           .select('full_name')
           .eq('referral_code', formData.referralCode)
+          .limit(1)
           .maybeSingle();
           
         if (referrerError) {
@@ -120,9 +121,9 @@ export default function Index() {
   };
 
   const copyReferralCode = () => {
-    navigator.clipboard.writeText(personalReferralCode);
+    navigator.clipboard.writeText(shareMessage);
     toast({
-      description: "referral code copied to clipboard!",
+      description: "share message copied to clipboard!",
     });
   };
 
@@ -191,7 +192,7 @@ export default function Index() {
           ) : (
             <div className="space-y-6 animate-fade-in">
               <div className="p-8 bg-[#13151a] rounded-2xl border border-gray-800 shadow-xl">
-                <h3 className="text-2xl font-semibold mb-6 text-[#5ee4ff]">
+                <h3 className="text-2xl font-semibold mb-6 font-satoshi">
                   {referrerName ? (
                     <>you're in! {referrerName} is glad to have you in innercircle. stay tuned—big things are coming.</>
                   ) : (
@@ -200,8 +201,8 @@ export default function Index() {
                 </h3>
                 <div className="flex items-center space-x-2 mb-6">
                   <div className="flex-1 p-4 bg-[#13151a] rounded-xl border border-gray-800">
-                    <p className="text-sm text-gray-400 mb-1">your referral code</p>
-                    <p className="text-lg font-mono">{personalReferralCode}</p>
+                    <p className="text-sm text-gray-400 mb-1 font-satoshi">your referral code</p>
+                    <p className="text-lg font-mono font-satoshi">{personalReferralCode}</p>
                   </div>
                   <Button
                     variant="outline"
@@ -213,13 +214,13 @@ export default function Index() {
                   </Button>
                 </div>
                 <div className="p-4 bg-[#13151a] rounded-xl border border-gray-800 mb-6">
-                  <p className="text-sm text-gray-400 mb-2">share message</p>
-                  <p className="text-sm font-mono mb-2">{shareMessage}</p>
+                  <p className="text-sm text-gray-400 mb-2 font-satoshi">share message</p>
+                  <p className="text-sm font-mono font-satoshi mb-2">{shareMessage}</p>
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={copyShareMessage}
-                    className="w-full bg-[#13151a] hover:bg-gray-800 border-gray-800"
+                    className="w-full bg-[#13151a] hover:bg-gray-800 border-gray-800 font-satoshi"
                   >
                     <Copy className="h-4 w-4 mr-2" />
                     copy message
@@ -228,11 +229,11 @@ export default function Index() {
                 <div className="space-y-3">
                   <SocialShareButton platform="whatsapp" referralCode={personalReferralCode} />
                   <SocialShareButton platform="x" referralCode={personalReferralCode} />
-                  <SocialShareButton platform="instagram" referralCode={personalReferralCode} />
+                  <SocialShareButton platform="copy" referralCode={personalReferralCode} />
                 </div>
               </div>
               <div className="flex justify-between items-center">
-                <div className="text-sm text-gray-400">
+                <div className="text-sm text-gray-400 font-satoshi">
                   innercircle is growing—{totalSignups.toLocaleString()} event lovers are already on the list!
                 </div>
                 <Button
