@@ -59,12 +59,13 @@ export default function Index() {
     try {
       // Validate referral code if provided
       if (formData.referralCode) {
-        const { data: referrerCount, error: countError } = await supabase
+        const { data: referrer, error: referrerError } = await supabase
           .from('waitlist')
-          .select('*', { count: 'exact', head: true })
-          .eq('referral_code', formData.referralCode);
+          .select('full_name')
+          .eq('referral_code', formData.referralCode)
+          .maybeSingle();
           
-        if (countError) {
+        if (referrerError) {
           toast({
             description: "oops! something went wrong while checking the referral code. please try again!",
             variant: "destructive",
@@ -72,7 +73,7 @@ export default function Index() {
           return;
         }
 
-        if (referrerCount?.count === 0) {
+        if (!referrer) {
           toast({
             description: "hmm... that referral code doesn't seem right. double-check and try again!",
             variant: "destructive",
@@ -80,12 +81,6 @@ export default function Index() {
           return;
         }
 
-        const { data: referrer } = await supabase
-          .from('waitlist')
-          .select('full_name')
-          .eq('referral_code', formData.referralCode)
-          .single();
-          
         setReferrerName(referrer.full_name);
       }
 
