@@ -1,7 +1,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Share2 } from "lucide-react";
-import { Twitter, Instagram, WhatsApp } from 'lucide-react';
+import { Twitter, Instagram, MessageCircle } from 'lucide-react';
 
 interface SocialShareButtonProps {
   platform: 'whatsapp' | 'twitter' | 'instagram';
@@ -25,7 +25,7 @@ export const SocialShareButton = ({ platform, referralCode }: SocialShareButtonP
   const getIcon = () => {
     switch (platform) {
       case 'whatsapp':
-        return <WhatsApp className="w-4 h-4 mr-2" />;
+        return <MessageCircle className="w-4 h-4 mr-2" />;
       case 'twitter':
         return <Twitter className="w-4 h-4 mr-2" />;
       case 'instagram':
