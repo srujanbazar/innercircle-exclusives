@@ -169,18 +169,18 @@ export default function Index() {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white font-satoshi flex items-center justify-center">
-      <div className="container mx-auto px-4 py-8 max-w-md">
-        <div className="space-y-8">
+    <div className="min-h-screen h-screen bg-black text-white font-satoshi flex items-center justify-center overflow-hidden">
+      <div className="container mx-auto px-4 py-8 max-w-md h-full flex items-center">
+        <div className="w-full space-y-6">
           <div className="text-center space-y-4">
-            <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-[#5ee4ff]">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-[#5ee4ff]">
               innercircle
             </h1>
             <TypewriterAnimation />
           </div>
 
           {!isSubmitted ? (
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
               <FloatingLabelInput
                 label="full name"
                 value={formData.fullName}
@@ -207,25 +207,25 @@ export default function Index() {
               />
               <Button
                 type="submit"
-                className="w-full h-14 text-base font-medium bg-gradient-to-r from-[#5ee4ff] to-[#7b5cfa] hover:opacity-90 text-white rounded-xl transition-all duration-300"
+                className="w-full h-12 sm:h-14 text-base font-medium bg-gradient-to-r from-[#5ee4ff] to-[#7b5cfa] hover:opacity-90 text-white rounded-xl transition-all duration-300"
               >
                 get early access to innercircle
               </Button>
             </form>
           ) : (
-            <div className="space-y-6 animate-fade-in">
-              <div className="p-8 bg-[#13151a] rounded-2xl border border-gray-800 shadow-xl">
-                <h3 className="text-2xl font-semibold mb-6 font-satoshi">
+            <div className="space-y-4 sm:space-y-6 animate-fade-in">
+              <div className="p-4 sm:p-8 bg-[#13151a] rounded-2xl border border-gray-800 shadow-xl">
+                <h3 className="text-xl sm:text-2xl font-semibold mb-4 sm:mb-6 font-satoshi">
                   {referrerName ? (
                     <>you're in! {referrerName} is glad to have you in innercircle. stay tuned—big things are coming.</>
                   ) : (
                     <>done! you're now on the list. the more friends you invite, the sooner you'll enter innercircle.</>
                   )}
                 </h3>
-                <div className="flex items-center space-x-2 mb-6">
-                  <div className="flex-1 p-4 bg-[#13151a] rounded-xl border border-gray-800">
-                    <p className="text-sm text-gray-400 mb-1 font-satoshi">your referral code</p>
-                    <p className="text-lg font-mono font-satoshi">{personalReferralCode}</p>
+                <div className="flex items-center space-x-2 mb-4 sm:mb-6">
+                  <div className="flex-1 p-3 sm:p-4 bg-[#13151a] rounded-xl border border-gray-800">
+                    <p className="text-xs sm:text-sm text-gray-400 mb-1 font-satoshi">your referral code</p>
+                    <p className="text-base sm:text-lg font-mono font-satoshi">{personalReferralCode}</p>
                   </div>
                   <Button
                     variant="outline"
@@ -236,14 +236,14 @@ export default function Index() {
                     <Copy className="h-4 w-4" />
                   </Button>
                 </div>
-                <div className="space-y-3">
+                <div className="space-y-2 sm:space-y-3">
                   <SocialShareButton platform="whatsapp" referralCode={personalReferralCode} />
                   <SocialShareButton platform="x" referralCode={personalReferralCode} />
                   <SocialShareButton platform="copy" referralCode={personalReferralCode} />
                 </div>
               </div>
               <div className="flex justify-between items-center">
-                <div className="text-sm text-gray-400 font-satoshi">
+                <div className="text-xs sm:text-sm text-gray-400 font-satoshi">
                   innercircle is growing—{totalSignups.toLocaleString()} event lovers are already on the list!
                 </div>
                 <Button
