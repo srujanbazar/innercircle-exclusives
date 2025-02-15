@@ -43,18 +43,23 @@ export default function Index() {
     e.preventDefault();
     
     try {
-      // Step 1: Generate new referral code first
-      const { data: newReferralCode, error: genError } = await supabase.rpc('generate_referral_code');
-      if (genError) throw genError;
-
-      // Step 2: If referral code is provided, validate it
+      // Step 1: If referral code is provided, validate it first
       let referrerFullName = null;
       if (formData.referralCode) {
-        const { data: referrerData } = await supabase
+        const { data: referrerData, error: referrerError } = await supabase
           .from('waitlist')
           .select('full_name')
           .eq('referral_code', formData.referralCode.trim())
-          .single();
+          .maybeSingle();
+
+        if (referrerError) {
+          console.error('Referral validation error:', referrerError);
+          toast({
+            description: "something went wrong checking the referral code. please try again!",
+            variant: "destructive",
+          });
+          return;
+        }
 
         if (!referrerData) {
           toast({
@@ -63,7 +68,19 @@ export default function Index() {
           });
           return;
         }
+
         referrerFullName = referrerData.full_name;
+      }
+
+      // Step 2: Generate new referral code
+      const { data: newReferralCode, error: genError } = await supabase.rpc('generate_referral_code');
+      if (genError) {
+        console.error('Generate referral code error:', genError);
+        toast({
+          description: "something went wrong generating your referral code. please try again!",
+          variant: "destructive",
+        });
+        return;
       }
 
       // Step 3: Insert new user
@@ -79,15 +96,19 @@ export default function Index() {
 
       if (insertError) {
         console.error('Insert error:', insertError);
-        throw insertError;
+        toast({
+          description: "something went wrong saving your information. please try again!",
+          variant: "destructive",
+        });
+        return;
       }
 
-      // Update state with success data
+      // Step 4: Update UI state
       setPersonalReferralCode(newReferralCode);
       if (referrerFullName) setReferrerName(referrerFullName);
       setIsSubmitted(true);
 
-      // Refresh total count
+      // Step 5: Refresh total count
       const { count } = await supabase
         .from('waitlist')
         .select('*', { count: 'exact', head: true });
@@ -97,9 +118,9 @@ export default function Index() {
       }
 
     } catch (error: any) {
-      console.error('Submission error:', error);
+      console.error('Unexpected error:', error);
       toast({
-        description: "something went wrong. please try again!",
+        description: "something unexpected went wrong. please try again!",
         variant: "destructive",
       });
     }
