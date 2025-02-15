@@ -21,12 +21,33 @@ export default function Index() {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [personalReferralCode, setPersonalReferralCode] = useState('');
   const [referrerName, setReferrerName] = useState('');
+  const [totalSignups, setTotalSignups] = useState(0);
   const shareMessage = `i just secured my spot in innercircle! want in? sign up now and get ahead of the line: innercircle.events?ref=${personalReferralCode}\n\n_innercircle: the ultimate insider platform for event lovers._`;
+
+  const fetchTotalSignups = async () => {
+    const { count } = await supabase
+      .from('waitlist')
+      .select('*', { count: 'exact', head: true });
+    setTotalSignups(count || 0);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     try {
+      // Check if referral code exists and get referrer's name
+      if (formData.referralCode) {
+        const { data: referrerData } = await supabase
+          .from('waitlist')
+          .select('full_name')
+          .eq('referral_code', formData.referralCode.trim())
+          .single();
+        
+        if (referrerData) {
+          setReferrerName(referrerData.full_name);
+        }
+      }
+
       // Step 1: Generate new referral code
       const { data: newReferralCode, error: genError } = await supabase.rpc('generate_referral_code');
       if (genError) {
@@ -68,6 +89,7 @@ export default function Index() {
       // Step 3: Update UI state
       setPersonalReferralCode(newReferralCode);
       setIsSubmitted(true);
+      fetchTotalSignups();
 
     } catch (error: any) {
       console.error('Unexpected error:', error);
@@ -144,7 +166,9 @@ export default function Index() {
             <div className="space-y-4 animate-fade-in">
               <div className="p-4 sm:p-6 bg-[#13151a] rounded-2xl border border-gray-800 shadow-xl">
                 <h3 className="text-lg xs:text-xl sm:text-2xl font-semibold mb-4 font-satoshi">
-                  done! you're now on the list. the more friends you invite, the sooner you'll enter innercircle.
+                  {referrerName 
+                    ? `you're in! ${referrerName} is glad to have you in innercircle. stay tuned—big things are coming.`
+                    : "done! you're now on the list. the more friends you invite, the sooner you'll enter innercircle."}
                 </h3>
                 <div className="flex items-center space-x-2 mb-4">
                   <div className="flex-1 p-3 sm:p-4 bg-[#13151a] rounded-xl border border-gray-800">
@@ -161,12 +185,15 @@ export default function Index() {
                   </Button>
                 </div>
                 <div className="space-y-2">
-                  <SocialShareButton platform="whatsapp" referralCode={personalReferralCode} />
+                  <SocialShareButton platform="whatsapp" referralCode={personalReferralCode} useAltIcon={true} />
                   <SocialShareButton platform="x" referralCode={personalReferralCode} />
                   <SocialShareButton platform="copy" referralCode={personalReferralCode} />
                 </div>
               </div>
-              <div className="flex justify-end">
+              <div className="flex justify-between items-center">
+                <p className="text-sm text-gray-400">
+                  innercircle is growing— {totalSignups} event lovers are already on the list!
+                </p>
                 <Button
                   variant="ghost"
                   size="icon"
