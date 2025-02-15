@@ -1,6 +1,6 @@
 
 import { Button } from "@/components/ui/button";
-import { MessageSquare, Twitter, Copy, Share } from 'lucide-react';
+import { MessageSquare, Twitter, Share } from 'lucide-react';
 
 interface SocialShareButtonProps {
   platform: 'whatsapp' | 'x' | 'copy';

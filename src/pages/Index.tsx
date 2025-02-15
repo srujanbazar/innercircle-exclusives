@@ -24,73 +24,78 @@ export default function Index() {
   const [referrerName, setReferrerName] = useState('');
   const shareMessage = `i just secured my spot in innercircle! want in? sign up now and get ahead of the line: innercircle.events?ref=${personalReferralCode}\n\n_innercircle: the ultimate insider platform for event lovers._`;
 
-  const fetchTotalSignups = async () => {
-    const { data, error } = await supabase
-      .from('waitlist')
-      .select('id');
-    
-    if (!error && data) {
-      setTotalSignups(data.length);
-    }
-  };
-
+  // New count fetch implementation
   useEffect(() => {
-    fetchTotalSignups();
+    const fetchCount = async () => {
+      const { count, error } = await supabase
+        .from('waitlist')
+        .select('*', { count: 'exact', head: true });
+      
+      if (!error && count !== null) {
+        setTotalSignups(count);
+      }
+    };
+
+    fetchCount();
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
     try {
-      // New simplified referral code validation
+      // Step 1: Generate new referral code first
+      const { data: newReferralCode, error: genError } = await supabase.rpc('generate_referral_code');
+      if (genError) throw genError;
+
+      // Step 2: If referral code is provided, validate it
+      let referrerFullName = null;
       if (formData.referralCode) {
-        const { data, error } = await supabase
+        const { data: referrerData } = await supabase
           .from('waitlist')
           .select('full_name')
           .eq('referral_code', formData.referralCode.trim())
-          .maybeSingle();
+          .single();
 
-        console.log('Referral check result:', { data, error });
-
-        if (error) {
-          console.error('Referral validation error:', error);
-          toast({
-            description: "oops! something went wrong. please try again!",
-            variant: "destructive",
-          });
-          return;
-        }
-
-        if (!data) {
+        if (!referrerData) {
           toast({
             description: "invalid referral code. please check and try again!",
             variant: "destructive",
           });
           return;
         }
-
-        setReferrerName(data.full_name);
+        referrerFullName = referrerData.full_name;
       }
 
-      const { data: newReferralCode, error: genError } = await supabase.rpc('generate_referral_code');
-      if (genError) throw genError;
-
+      // Step 3: Insert new user
       const { error: insertError } = await supabase
         .from('waitlist')
-        .insert([
-          {
-            full_name: formData.fullName.toLowerCase(),
-            email: formData.email.toLowerCase(),
-            city: formData.city.toLowerCase(),
-            referral_code: newReferralCode,
-            referred_by: formData.referralCode ? formData.referralCode.trim() : null
-          }
-        ]);
+        .insert({
+          full_name: formData.fullName.toLowerCase(),
+          email: formData.email.toLowerCase(),
+          city: formData.city.toLowerCase(),
+          referral_code: newReferralCode,
+          referred_by: formData.referralCode ? formData.referralCode.trim() : null
+        });
 
-      if (insertError) throw insertError;
+      if (insertError) {
+        console.error('Insert error:', insertError);
+        throw insertError;
+      }
 
+      // Update state with success data
       setPersonalReferralCode(newReferralCode);
+      if (referrerFullName) setReferrerName(referrerFullName);
       setIsSubmitted(true);
-      fetchTotalSignups(); // Refresh the count after successful submission
+
+      // Refresh total count
+      const { count } = await supabase
+        .from('waitlist')
+        .select('*', { count: 'exact', head: true });
+      
+      if (count !== null) {
+        setTotalSignups(count);
+      }
+
     } catch (error: any) {
       console.error('Submission error:', error);
       toast({
