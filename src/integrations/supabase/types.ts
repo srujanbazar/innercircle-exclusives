@@ -40,15 +40,7 @@ export type Database = {
           referral_count?: number | null
           referred_by?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "waitlist_referred_by_fkey"
-            columns: ["referred_by"]
-            isOneToOne: false
-            referencedRelation: "waitlist"
-            referencedColumns: ["referral_code"]
-          },
-        ]
+        Relationships: []
       }
     }
     Views: {
