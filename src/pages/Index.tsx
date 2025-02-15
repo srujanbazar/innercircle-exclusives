@@ -43,7 +43,31 @@ export default function Index() {
     e.preventDefault();
     
     try {
-      // Step 1: If referral code is provided, validate it first
+      // Step 1: Check if email already exists
+      const { data: existingUser, error: emailCheckError } = await supabase
+        .from('waitlist')
+        .select('email')
+        .eq('email', formData.email.toLowerCase())
+        .maybeSingle();
+
+      if (emailCheckError) {
+        console.error('Email check error:', emailCheckError);
+        toast({
+          description: "something went wrong. please try again!",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (existingUser) {
+        toast({
+          description: "this email is already registered. please use a different email!",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Step 2: If referral code is provided, validate it
       let referrerFullName = null;
       if (formData.referralCode) {
         const { data: referrerData, error: referrerError } = await supabase
@@ -72,7 +96,7 @@ export default function Index() {
         referrerFullName = referrerData.full_name;
       }
 
-      // Step 2: Generate new referral code
+      // Step 3: Generate new referral code
       const { data: newReferralCode, error: genError } = await supabase.rpc('generate_referral_code');
       if (genError) {
         console.error('Generate referral code error:', genError);
@@ -83,7 +107,7 @@ export default function Index() {
         return;
       }
 
-      // Step 3: Insert new user
+      // Step 4: Insert new user
       const { error: insertError } = await supabase
         .from('waitlist')
         .insert({
@@ -103,12 +127,12 @@ export default function Index() {
         return;
       }
 
-      // Step 4: Update UI state
+      // Step 5: Update UI state
       setPersonalReferralCode(newReferralCode);
       if (referrerFullName) setReferrerName(referrerFullName);
       setIsSubmitted(true);
 
-      // Step 5: Refresh total count
+      // Step 6: Refresh total count
       const { count } = await supabase
         .from('waitlist')
         .select('*', { count: 'exact', head: true });
